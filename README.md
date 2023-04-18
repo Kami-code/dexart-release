@@ -28,7 +28,7 @@ The learning part for DexArt will release soon.
 
 ## Installation
 
-1. Install Python dependencies Create a conda env with all the Python dependencies.
+1. Clone the repo and install Python dependencies with following commands.
 
 ```bash
 git clone git@github.com:Kami-code/dexart-sim.git
