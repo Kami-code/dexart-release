@@ -38,7 +38,7 @@ conda activate dexart
 pip install -e .
 ```
 
-2. Download the demonstrations from
+2. Download the assets from
 the [Google Drive](https://drive.google.com/file/d/1JdReXZjMaqMO0HkZQ4YMiU2wTdGCgum1/view?usp=sharing) and place 
 the `asset` directory at the project root directory.
 
