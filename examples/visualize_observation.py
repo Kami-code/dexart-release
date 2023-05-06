@@ -10,7 +10,7 @@ import open3d as o3d
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--task_name', type=str, default='laptop')
+    parser.add_argument('--task_name', type=str, required=True)
     args = parser.parse_args()
     task_name = args.task_name
 

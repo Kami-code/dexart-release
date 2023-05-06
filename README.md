@@ -9,7 +9,7 @@ Chen Bao*, Helin Xu*, Yuzhe Qin, Xiaolong Wang, CVPR 2023.
 
 DexArt is a novel benchmark and pipeline for learning multiple dexterous manipulation tasks.
 This repo contains the **simulated environment** code for DexArt.
-The learning part for DexArt will release soon.
+The learning part for DexArt has been released in [DexArt-algo](https://github.com/Kami-code/dexart-algo).
 
 ![DexArt Teaser](docs/teaser.png)
 
@@ -41,6 +41,8 @@ pip install -e .
 2. Download the assets from
 the [Google Drive](https://drive.google.com/file/d/1JdReXZjMaqMO0HkZQ4YMiU2wTdGCgum1/view?usp=sharing) and place 
 the `asset` directory at the project root directory.
+
+3. If you want to visualize the policy or train the model by yourself, please visit [DexArt-Algo Repository](https://github.com/Kami-code/dexart-algo) for more information.
 
 ## File Structure
 The file structure is listed as follows:
