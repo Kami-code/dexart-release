@@ -33,6 +33,8 @@ The learning part for DexArt will release soon.
 ```bash
 git clone git@github.com:Kami-code/dexart-sim.git
 cd dexart-sim
+conda create --name dexart python=3.8
+conda activate dexart
 pip install -e .
 ```
 
@@ -56,8 +58,7 @@ The file structure is listed as follows:
 
 
 ```bash
-cd examples
-python random_action.py --task_name=laptop
+python examples/random_action.py --task_name=laptop
 ```
 
 You can also try different task_name: faucet, laptop, bucket, toilet
@@ -65,7 +66,6 @@ You can also try different task_name: faucet, laptop, bucket, toilet
 ### Visualize Point Cloud Observation Example
 
 ```bash
-cd examples
-python visualize_observation.py --task_name=laptop
+python examples/visualize_observation.py --task_name=laptop
 ```
 You can also try different task_name: faucet, laptop, bucket, toilet

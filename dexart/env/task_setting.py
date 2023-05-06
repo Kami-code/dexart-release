@@ -147,3 +147,6 @@ IMG_CONFIG = {
         },
     }
 }
+
+RANDOM_CONFIG = {"bucket": {"rand_pos": 0.05, "rand_degree": 0}, "laptop": {"rand_pos": 0.1, "rand_degree": 60},
+                 "faucet": {"rand_pos": 0.1, "rand_degree": 90}, 'toilet': {"rand_pos": 0.2, "rand_degree": 45},}
