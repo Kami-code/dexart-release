@@ -7,10 +7,10 @@ if sys.version_info.major != 3:
 
 
 setup(
-    name='dexart-sim',
+    name='dexart',
     version='0.1.0',
     packages=find_packages(),
-    url='https://github.com/Kami-code/dexart-sim',
+    url='https://github.com/Kami-code/dexart-release',
     license='',
     author="Xiaolong Wang's Lab",
     install_requires=[
