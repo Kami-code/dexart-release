@@ -4,6 +4,8 @@
 -----
 
 [DexArt: Benchmarking Generalizable Dexterous Manipulation with Articulated Objects](https://www.chenbao.tech/dexart/), 
+
+
 Chen Bao*, Helin Xu*, Yuzhe Qin, Xiaolong Wang, CVPR 2023.
 
 
