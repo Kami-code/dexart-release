@@ -20,8 +20,8 @@ This repo contains the **simulated environment** and **training code** for DexAr
 1. Clone the repo and Create a conda env with all the Python dependencies.
 
 ```bash
-git clone git@github.com:Kami-code/dexart.git
-cd dexart
+git clone git@github.com:Kami-code/dexart-release.git
+cd dexart-release
 conda create --name dexart python=3.8
 conda activate dexart
 pip install -e .
