@@ -24,8 +24,8 @@ git clone git@github.com:Kami-code/dexart-release.git
 cd dexart-release
 conda create --name dexart python=3.8
 conda activate dexart
-pip install -e .
-conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 -c pytorch
+pip install -e .    # for simulation environment
+conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 -c pytorch    # for visualizing trained policy and training 
 ```
 
 2. Download the assets from
@@ -41,7 +41,7 @@ The file structure is listed as follows:
 
 `examples/`: example code to try DexArt
 
-`stable_baselines3/`: a rl training code copied from [stable_baselines3](https://github.com/DLR-RM/stable-baselines3) with some modification.
+`stable_baselines3/`: rl training code modified from [stable_baselines3](https://github.com/DLR-RM/stable-baselines3)
 
 
 
