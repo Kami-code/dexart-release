@@ -103,9 +103,9 @@ python3 examples/train.py --n 100 --workers 10 --iter 5000 --lr 0.0001 &&
 
 ```
 @inproceedings{
-    anonymous2023dexart,
+    bao2023dexart,
     title={DexArt: Benchmarking Generalizable Dexterous Manipulation with Articulated Objects},
-    author={Anonymous},
+    author={Chen Bao and Helin Xu and Yuzhe Qin and Xiaolong Wang},
     booktitle={Conference on Computer Vision and Pattern Recognition 2023},
     year={2023},
     url={https://openreview.net/forum?id=v-KQONFyeKp}
