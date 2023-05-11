@@ -1,6 +1,6 @@
 # DexArt: Benchmarking Generalizable Dexterous Manipulation with Articulated Objects
 
-[[Project Page]](https://www.chenbao.tech/dexart/) [[Paper]](https://www.chenbao.tech/dexart/static/paper/dexart.pdf)
+[[Project Page]](https://www.chenbao.tech/dexart/) [[arXiv]](https://arxiv.org/abs/2305.05706) [[Paper]](https://www.chenbao.tech/dexart/static/paper/dexart.pdf)
 -----
 
 [DexArt: Benchmarking Generalizable Dexterous Manipulation with Articulated Objects](https://www.chenbao.tech/dexart/), 
