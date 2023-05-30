@@ -1,9 +1,11 @@
 # DexArt: Benchmarking Generalizable Dexterous Manipulation with Articulated Objects
 
-[[Project Page]](https://www.chenbao.tech/dexart/) [[Paper]](https://www.chenbao.tech/dexart/static/paper/dexart.pdf)
+[[Project Page]](https://www.chenbao.tech/dexart/) [[arXiv]](https://arxiv.org/abs/2305.05706) [[Paper]](https://www.chenbao.tech/dexart/static/paper/dexart.pdf)
 -----
 
 [DexArt: Benchmarking Generalizable Dexterous Manipulation with Articulated Objects](https://www.chenbao.tech/dexart/), 
+
+
 Chen Bao*, Helin Xu*, Yuzhe Qin, Xiaolong Wang, CVPR 2023.
 
 
@@ -18,12 +20,12 @@ This repo contains the **simulated environment** and **training code** for DexAr
 1. Clone the repo and Create a conda env with all the Python dependencies.
 
 ```bash
-git clone git@github.com:Kami-code/dexart.git
-cd dexart
+git clone git@github.com:Kami-code/dexart-release.git
+cd dexart-release
 conda create --name dexart python=3.8
 conda activate dexart
-pip install -e .
-conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 -c pytorch
+pip install -e .    # for simulation environment
+conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 -c pytorch    # for visualizing trained policy and training 
 ```
 
 2. Download the assets from
@@ -39,7 +41,7 @@ The file structure is listed as follows:
 
 `examples/`: example code to try DexArt
 
-`stable_baselines3/`: a rl training code copied from [stable_baselines3](https://github.com/DLR-RM/stable-baselines3) with some modification.
+`stable_baselines3/`: rl training code modified from [stable_baselines3](https://github.com/DLR-RM/stable-baselines3)
 
 
 
@@ -101,9 +103,9 @@ python3 examples/train.py --n 100 --workers 10 --iter 5000 --lr 0.0001 &&
 
 ```
 @inproceedings{
-    anonymous2023dexart,
+    bao2023dexart,
     title={DexArt: Benchmarking Generalizable Dexterous Manipulation with Articulated Objects},
-    author={Anonymous},
+    author={Chen Bao and Helin Xu and Yuzhe Qin and Xiaolong Wang},
     booktitle={Conference on Computer Vision and Pattern Recognition 2023},
     year={2023},
     url={https://openreview.net/forum?id=v-KQONFyeKp}
