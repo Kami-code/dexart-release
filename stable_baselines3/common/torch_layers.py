@@ -320,14 +320,13 @@ def get_actor_critic_arch(net_arch: Union[List[int], Dict[str, List[int]]]) -> T
 
 class PointNetImaginationExtractorGP(BaseFeaturesExtractor):
     def __init__(self, observation_space: gym.spaces.Dict, pc_key: str, feat_key: Optional[str] = None,
-                 out_channel=256, freeze_type=0, extractor_name="smallpn",
+                 out_channel=256, extractor_name="smallpn",
                  gt_key: Optional[str] = None, imagination_keys=("imagination_robot",), state_key="state",
                  state_mlp_size=(64, 64), state_mlp_activation_fn=nn.ReLU, *kwargs):
         self.imagination_key = imagination_keys
         # Init state representation
         self.use_state = state_key is not None
         self.state_key = state_key
-        self.freeze_type = freeze_type  # 0 means no free , 1 means normal freeze, 2 means padding 0 to the 256 dim.
 
         print(f"extractor use state = {self.use_state}")
         if self.use_state:
@@ -393,8 +392,6 @@ class PointNetImaginationExtractorGP(BaseFeaturesExtractor):
         # points = torch.transpose(points, 1, 2)   # B * 3 * N
         # points: B * 3 * (N + sum(Ni))
         pn_feat = self.extractor(points)    # B * 256
-        if self.freeze_type == 2:
-            pn_feat = torch.zeros(size=(b, 256)).to("cuda:0")
         if self.use_state:
             state_feat = self.state_mlp(observations[self.state_key])
             return torch.cat([pn_feat, state_feat], dim=-1)

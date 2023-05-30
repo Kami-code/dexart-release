@@ -20,7 +20,7 @@ def get_3d_policy_kwargs(extractor_name):
     feature_extractor_kwargs = {"pc_key": "instance_1-point_cloud", "gt_key": "instance_1-seg_gt",
                                 "extractor_name": extractor_name,
                                 "imagination_keys": [f'imagination_{key}' for key in IMG_CONFIG['robot'].keys()],
-                                "state_key": "state", "freeze_type": 0}
+                                "state_key": "state"}
 
     policy_kwargs = {
         "features_extractor_class": feature_extractor_class,
