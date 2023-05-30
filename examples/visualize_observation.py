@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 from sapien.utils import Viewer
-
 from examples.utils import get_viewpoint_camera_parameter, visualize_observation
 import argparse
 import numpy as np

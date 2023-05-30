@@ -40,6 +40,7 @@ if __name__ == '__main__':
     parser.add_argument('--bs', type=int, default=10)
     parser.add_argument('--seed', type=int, default=100)
     parser.add_argument('--iter', type=int, default=1000)
+    parser.add_argument('--freeze', dest='freeze', action='store_true', default=False)
     parser.add_argument('--task_name', type=str, default="laptop")
     parser.add_argument('--extractor_name', type=str, default="smallpn")
     parser.add_argument('--pretrain_path', type=str, default=None)
@@ -51,6 +52,7 @@ if __name__ == '__main__':
     pretrain_path = args.pretrain_path
     horizon = 200
     env_iter = args.iter * horizon * args.n
+    print(f"freeze: {args.freeze}")
 
     rand_pos = RANDOM_CONFIG[task_name]['rand_pos']
     rand_degree = RANDOM_CONFIG[task_name]['rand_degree']
@@ -108,7 +110,7 @@ if __name__ == '__main__':
     rollout = int(model.num_timesteps / (horizon * args.n))
 
     # after loading or init the model, then freeze it if needed
-    if freeze_type > 0:
+    if args.freeze:
         model.policy.features_extractor.extractor.eval()
         for param in model.policy.features_extractor.extractor.parameters():
             param.requires_grad = False
