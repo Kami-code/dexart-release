@@ -111,3 +111,7 @@ python3 examples/train.py --n 100 --workers 10 --iter 5000 --lr 0.0001 &&
     url={https://openreview.net/forum?id=v-KQONFyeKp}
 }
 ```
+
+## Acknowledgements
+
+This repository employs the same code structure for simulation environment and training code to that used in [DexPoint](https://github.com/yzqin/dexpoint-release).
