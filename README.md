@@ -6,7 +6,7 @@
 [DexArt: Benchmarking Generalizable Dexterous Manipulation with Articulated Objects](https://www.chenbao.tech/dexart/), 
 
 
-[Chen Bao](https://chenbao.tech)*, [Helin Xu](https://helinxu.github.io/)*, [Yuzhe Qin](https://yzqin.github.io/), [Xiaolong Wang](https://xiaolonw.github.io/), CVPR 2023.
+[Chen Bao](https://chenbao.tech)\*, [Helin Xu](https://helinxu.github.io/)\*, [Yuzhe Qin](https://yzqin.github.io/), [Xiaolong Wang](https://xiaolonw.github.io/), CVPR 2023.
 
 
 DexArt is a novel benchmark and pipeline for learning multiple dexterous manipulation tasks.
