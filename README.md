@@ -74,6 +74,16 @@ python examples/visualize_policy.py --task_name=laptop --checkpoint_path assets/
 
 `use_test_set`: flag to determine evaluating with seen or unseen instances
 
+### Example for Evaluating Policy
+
+```bash
+python examples/evaluate_policy.py --task_name=laptop --checkpoint_path assets/rl_checkpoints/laptop.zip --eval_per_instance 10
+```
+
+`task_name`: name of environment [`faucet`, `laptop`, `bucket`, `toilet`]
+
+`use_test_set`: flag to determine evaluating with seen or unseen instances
+
 ### Example for Training RL Agent
 
 ```bash
@@ -97,7 +107,7 @@ python3 examples/train.py --n 100 --workers 10 --iter 5000 --lr 0.0001 &&
 
 `extractor_name`: different PointNet architectures [`smallpn`, `meduimpn`, `largepn`]
 
-`pretrain_path`: path to downloaded pretrained model. [Default: `None`
+`pretrain_path`: path to downloaded pretrained model. [Default: `None`]
 
 ## Bibtex
 
