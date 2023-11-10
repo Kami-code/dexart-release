@@ -77,7 +77,7 @@ python examples/visualize_policy.py --task_name=laptop --checkpoint_path assets/
 ### Example for Evaluating Policy
 
 ```bash
-python examples/evaluate_policy.py --task_name=laptop --checkpoint_path assets/rl_checkpoints/laptop.zip --eval_per_instance 10
+python examples/evaluate_policy.py --task_name=laptop --checkpoint_path assets/rl_checkpoints/laptop.zip --eval_per_instance 100
 ```
 
 `task_name`: name of environment [`faucet`, `laptop`, `bucket`, `toilet`]

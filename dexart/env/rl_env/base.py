@@ -341,7 +341,7 @@ class BaseRLEnv(BaseSimulationEnv, gym.Env):
                         raise ValueError(f"Link name {link_name} does not have collision geometry.")
                     link = [link for link in self.robot_collision_links if link.get_name() == link_name][0]
                     o3d_mesh = actor_to_open3d_mesh(link, use_collision_mesh=False, use_actor_pose=False)
-                    sampled_cloud = o3d_mesh.sample_points_uniformly(number_of_points=point_size)
+                    sampled_cloud = o3d_mesh.sample_points_uniformly(number_of_points=point_size, seed=0)
                     cloud_points = np.asarray(sampled_cloud.points)
                     img_dict["robot"][link_name] = (link, cloud_points, 1)
             elif img_type == "goal":
@@ -351,7 +351,7 @@ class BaseRLEnv(BaseSimulationEnv, gym.Env):
                 # Instead, the attribute name is saved, so we can always find the latest goal actor
                 for attr_name, point_size in link_config.items():
                     goal_sphere = o3d.geometry.TriangleMesh.create_sphere(radius=0.05)
-                    sampled_cloud = goal_sphere.sample_points_uniformly(number_of_points=point_size)
+                    sampled_cloud = goal_sphere.sample_points_uniformly(number_of_points=point_size, seed=0)
                     cloud_points = np.asarray(sampled_cloud.points)
                     img_dict["goal"][attr_name] = (attr_name, cloud_points, 2)
             elif img_type == "instance":
@@ -409,7 +409,7 @@ class BaseRLEnv(BaseSimulationEnv, gym.Env):
                         points[i] = int(link_config['link_template'])
                         for j in range(i):
                             points[i] -= points[j]
-                    sampled_cloud = o3d_mesh.sample_points_uniformly(number_of_points=int(points[i]))
+                    sampled_cloud = o3d_mesh.sample_points_uniformly(number_of_points=int(points[i]), seed=0)
                     cloud_points = np.asarray(sampled_cloud.points)
                     self.imagination_data[img_type][link.get_name()] = (link, cloud_points, 3)
 
