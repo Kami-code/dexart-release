@@ -27,10 +27,10 @@ if __name__ == "__main__":
 
     if use_test_set:
         indeces = TRAIN_CONFIG[task_name]['unseen']
-        # print(f"using unseen instances {indeces}")
+        print(f"using unseen instances {indeces}")
     else:
         indeces = TRAIN_CONFIG[task_name]['seen']
-        # print(f"using seen instances {indeces}")
+        print(f"using seen instances {indeces}")
 
     rand_pos = RANDOM_CONFIG[task_name]['rand_pos']
     rand_degree = RANDOM_CONFIG[task_name]['rand_degree']
