@@ -125,7 +125,7 @@ class LaptopRLEnv(LaptopEnv, BaseRLEnv):
     def setup_robot_annotation(self, robot_name: str):
         # here we load robot2laptop
         current_dir = Path(__file__).parent
-        self.pos_path = current_dir.parent.parent.parent / "assets" / f"laptop_{robot_name}_relative_position.json"
+        self.pos_path = current_dir.parent.parent.parent / "assets" / "annotation" / f"laptop_{robot_name}_relative_position.json"
         if not os.path.exists(self.pos_path):
             return dict()
         else:
