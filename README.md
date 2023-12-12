@@ -14,6 +14,9 @@ This repo contains the **simulated environment** and **training code** for DexAr
 
 ![DexArt Teaser](docs/teaser.png)
 
+## News
+**[2023.11.21]** 🎈 All the RL checkpoints are available now! They are included in the assets. See [Main Results](https://github.com/Kami-code/dexart-release#main-results) to reproduce the results in the paper! <br>
+**[2023.4.18]**  Code and vision pre-trained models are available now! <br>
 
 ## Installation
 
@@ -37,7 +40,7 @@ The file structure is listed as follows:
 
 `dexart/env/`: environments
 
-`assets/`: tasks annotations, object and robot URDFs
+`assets/`: tasks annotations, object, robot URDFs and RL checkpoints
 
 `examples/`: example code to try DexArt
 
@@ -67,7 +70,7 @@ python examples/visualize_observation.py --task_name=laptop
 ### Example for Visualizing Policy
 
 ```bash
-python examples/visualize_policy.py --task_name=laptop --checkpoint_path assets/rl_checkpoints/laptop.zip
+python examples/visualize_policy.py --task_name=laptop --checkpoint_path assets/rl_checkpoints/laptop/laptop_nopretrain_0.zip
 ```
 
 `task_name`: name of the environment [`faucet`, `laptop`, `bucket`, `toilet`]
