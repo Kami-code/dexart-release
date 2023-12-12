@@ -15,8 +15,9 @@ This repo contains the **simulated environment** and **training code** for DexAr
 ![DexArt Teaser](docs/teaser.png)
 
 ## News
-**[2023.11.21]** 🎈 All the RL checkpoints are available now! They are included in the assets. See [Main Results](https://github.com/Kami-code/dexart-release#main-results) to reproduce the results in the paper! <br>
+**[2023.11.21]** All the RL checkpoints are available now!🎈 They are included in the assets. See [Main Results](https://github.com/Kami-code/dexart-release#main-results) to reproduce the results in the paper! <br>
 **[2023.4.18]**  Code and vision pre-trained models are available now! <br>
+**[2023.3.24]**  DexArt is accepted by CVPR 2023! 🎉 <br>
 
 ## Installation
 
@@ -163,13 +164,12 @@ We have uploaded the code to generate a dataset and pretrain our models in [exam
 ## Bibtex
 
 ```
-@inproceedings{
-    bao2023dexart,
-    title={DexArt: Benchmarking Generalizable Dexterous Manipulation with Articulated Objects},
-    author={Chen Bao and Helin Xu and Yuzhe Qin and Xiaolong Wang},
-    booktitle={Conference on Computer Vision and Pattern Recognition 2023},
-    year={2023},
-    url={https://openreview.net/forum?id=v-KQONFyeKp}
+@inproceedings{bao2023dexart,
+  title={DexArt: Benchmarking Generalizable Dexterous Manipulation with Articulated Objects},
+  author={Bao, Chen and Xu, Helin and Qin, Yuzhe and Wang, Xiaolong},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={21190--21200},
+  year={2023}
 }
 ```
 
