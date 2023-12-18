@@ -10,6 +10,7 @@ from dexart.env.task_setting import TRAIN_CONFIG, IMG_CONFIG, RANDOM_CONFIG
 from stable_baselines3.common.torch_layers import PointNetImaginationExtractorGP
 from stable_baselines3.common.vec_env.subproc_vec_env import SubprocVecEnv
 from stable_baselines3.ppo import PPO
+from stable_baselines3.simple_callback import SimpleCallback
 import torch
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -44,6 +45,8 @@ if __name__ == '__main__':
     parser.add_argument('--task_name', type=str, default="laptop")
     parser.add_argument('--extractor_name', type=str, default="smallpn")
     parser.add_argument('--pretrain_path', type=str, default=None)
+    parser.add_argument('--save_freq', type=int, default=1)
+    parser.add_argument('--save_path', type=str, default=BASE_DIR)
     args = parser.parse_args()
 
     task_name = args.task_name
@@ -120,5 +123,5 @@ if __name__ == '__main__':
         total_timesteps=int(env_iter),
         reset_num_timesteps=False,
         iter_start=rollout,
-        callback=None
+        callback=SimpleCallback(model_save_freq=args.save_freq, model_save_path=args.save_path, rollout=0),
     )

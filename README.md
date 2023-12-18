@@ -81,7 +81,7 @@ python examples/visualize_policy.py --task_name=laptop --checkpoint_path assets/
 ### Example for Training RL Agent
 
 ```bash
-python3 examples/train_ppo.py --n 100 --workers 10 --iter 5000 --lr 0.0001 &&
+python3 examples/train.py --n 100 --workers 10 --iter 5000 --lr 0.0001 &&
 --seed 100 --bs 500 --task_name laptop --extractor_name smallpn &&
 --pretrain_path ./assets/vision_pretrain/laptop_smallpn_fulldata.pth 
 ```
@@ -102,6 +102,10 @@ python3 examples/train_ppo.py --n 100 --workers 10 --iter 5000 --lr 0.0001 &&
 `extractor_name`: different PointNet architectures [`smallpn`, `meduimpn`, `largepn`]
 
 `pretrain_path`: path to downloaded pre-trained model. [Default: `None`]
+
+`save_freq`: save the model every `save_freq` episodes. [Default: `1`]
+
+`save_path`: path to save the model. [Default: `./examples`]
 
 ## Main Results
 ```bash
