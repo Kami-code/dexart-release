@@ -149,7 +149,7 @@ def main(cfg):
     env.seed(eval_cfg.seed)
 
     if eval_cfg.model == "ppo":
-        policy = PPO.load(checkpoint_path, env, device,
+        policy = PPO.load(f"{utils.get_original_cwd()}/{checkpoint_path}", env, device,
                             policy_kwargs=get_3d_policy_kwargs(extractor_name='smallpn'),
                             check_obs_space=False, force_load=True)
         policy.set_random_seed(eval_cfg.seed)

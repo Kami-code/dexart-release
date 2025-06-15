@@ -74,17 +74,24 @@ class DP3DexArtDataset(Dataset):
         first_frame_path = os.path.join("/home/xinyu/dexart-release/visualization", "stage_3.png")
         vis.capture_screen_image(first_frame_path)
 
-    def getGoal(self, traj):
+    def getGoal(self, traj, start_idx):
+        all_stages = np.array([i['obs']['stage'] for i in traj])
+        curr_stage = all_stages[start_idx]
 
-        last_obs_per_stage = {}
-        last_obs_env = {}
+        # Find first occurrence of next stage
+        try:
+            next_stage_idx = np.where(all_stages == (curr_stage + 1))[0][0]
+        except:
+            # Might fail to find next stage idx if:
+            # - Already at last stage
+            # - Skipped one intermediate state
+            # In that case, just take the last idx
+            next_stage_idx = -1
 
-        for o in traj:
-            stage = o["obs"]["stage"]
-            last_obs_per_stage[stage] = o["obs"]["imagined_robot_point_cloud"]
-            last_obs_env[stage] = o["obs"]["observed_point_cloud"]
+        goal_obs_imagin = traj[next_stage_idx]["obs"]["imagined_robot_point_cloud"]
+        goal_obs_env = traj[next_stage_idx]["obs"]["observed_point_cloud"]
 
-        return last_obs_per_stage, last_obs_env
+        return goal_obs_imagin, goal_obs_env
 
 
     def __getitem__(self, idx):
@@ -92,12 +99,12 @@ class DP3DexArtDataset(Dataset):
         obs_window = traj[start_idx - self.n_obs_steps : start_idx]
         action_window = traj[start_idx : start_idx + self.horizon]
 
-        last_obs_per_stage, last_obs_env = self.getGoal(traj)
-        
+        goal_obs_imagin, goal_obs_env = self.getGoal(traj, start_idx)
+
         obs = {
             'point_cloud': torch.stack([torch.tensor(o["obs"]["observed_point_cloud"], dtype=torch.float32) for o in obs_window]),
             'imagin_robot': torch.stack([torch.tensor(o["obs"]['imagined_robot_point_cloud'], dtype=torch.float32) for o in obs_window]),
-            'goal_gripper_pcd': torch.stack([torch.tensor(last_obs_per_stage[o["obs"]["stage"]], dtype=torch.float32) for o in obs_window]),
+            'goal_gripper_pcd': torch.stack([torch.tensor(goal_obs_imagin, dtype=torch.float32)] * self.n_obs_steps),
             'robot0_eef_pos': torch.stack([torch.tensor(o["obs"]['palm_pose.p'], dtype=torch.float32) for o in obs_window]),
             'robot0_eef_quat': torch.stack([torch.tensor(o["obs"]['palm_pose.q'], dtype=torch.float32) for o in obs_window]),
             'robot0_gripper_qpos': torch.stack([torch.tensor(o["obs"]['robot_qpos_vec'][-16:], dtype=torch.float32) for o in obs_window]),
