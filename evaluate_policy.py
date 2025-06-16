@@ -163,6 +163,8 @@ def main(cfg):
     eval_per_instance = eval_cfg.eval_per_instance
     success_list = list()
     reward_list = list()
+    progress_list = list()
+    stage_list = list()
 
     demo_save_dir_success = os.path.join('demo_dp3', task_name, 'success_demo')
     demo_save_dir_failure = os.path.join('demo_dp3', task_name, 'failure_demo')
@@ -176,6 +178,8 @@ def main(cfg):
             for _ in range(eval_instances):
                 obs = env.reset()
                 eval_success = False
+                progress = 0
+                stage = 1
                 reward_sum = 0
                 demo_data = []
                 obs_dict = None # Initialize at None
@@ -183,7 +187,10 @@ def main(cfg):
                 for j in range(env.horizon):         # Loop for max steps
                     if isinstance(obs, dict):
                         for key, value in obs.items():
-                            obs[key] = value[np.newaxis, :]
+                            if isinstance(value, np.ndarray):
+                                obs[key] = value[np.newaxis, :]
+                            else:
+                                obs[key] = np.array([[value]]) 
                     else:
                         obs = obs[np.newaxis, :]
 
@@ -231,7 +238,9 @@ def main(cfg):
                     # ], axis=0)                             # => (608, 7)
                     # assert observed_pc.shape == (608, 7)
                     # demo_data.append(observed_pc)  # Append to trajectory list 
-                    
+
+                    progress = env.progress
+                    stage = env.state
 
                     if env.is_eval_done:
                         eval_success = True
@@ -241,6 +250,8 @@ def main(cfg):
                 
                 reward_list.append(reward_sum)
                 success_list.append(int(eval_success))
+                progress_list.append(progress)
+                stage_list.append(stage)
                 pbar.update(1)
 
                 if eval_success:
@@ -254,8 +265,10 @@ def main(cfg):
                 demo_id += 1
 
 
+    print(progress_list)
+    print(stage_list)
     print(f"checkpoint in {checkpoint_path} success rate = {np.mean(success_list)}")
-    print(f"Saved {demo_id} successful demos to: {demo_save_dir_success} and {demo_save_dir_failure}")
+    print(f"Saved {demo_id} demos to: {demo_save_dir_success} and {demo_save_dir_failure}")
 
 if __name__ == "__main__":
     main()

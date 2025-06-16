@@ -35,7 +35,8 @@ with open(pickle_file, 'rb') as f:
     data = pickle.load(f)
 
 #print(data[1]["obs"]["palm_pose.q"])
-print(data[20]["obs"]["stage"])
+for d in data:
+    print(d["obs"]["progress"])
 
 print(f"Total number of samples: {len(data)}\n")
 print_detailed_structure(data)

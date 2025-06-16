@@ -90,6 +90,9 @@ class LaptopRLEnv(LaptopEnv, BaseRLEnv):
     
     def get_state(self):
         return self.state
+    
+    def get_progress(self):
+        return self.progress
 
     def get_reward(self, action):
         reward = 0
