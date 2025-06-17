@@ -19,8 +19,9 @@ import pickle
 
 import torch
 from equi_diffpo.policy.dp3 import DP3
-from diffusers.schedulers import DDPMScheduler
+from diffusers.schedulers import DDPMScheduler, DDIMScheduler
 import collections
+from collections import deque
 #from train_dp3 import set_random_quaternion
 
 def get_obs(obs):
@@ -39,10 +40,9 @@ def get_obs(obs):
     }
     return obs
 
-HORIZON = 16
+N_OBS_STEPS = 2
 
-
-def get_dp3_obs(obs_dict, obs, device, horizon):
+def get_dp3_obs(obs_dict, obs, device, n_obs_steps):
     """Observation for DP3 inference"""
     state = obs['state'].squeeze()  # shape (32,)
     robot_qpos_vec = state[:22]
@@ -50,18 +50,17 @@ def get_dp3_obs(obs_dict, obs, device, horizon):
     imagin_robot = torch.tensor(obs['imagination_robot'][:, :, :3], dtype=torch.float32).to(device)
     goal_gripper_pcd = torch.tensor(obs['imagination_robot'][:, :, :3], dtype=torch.float32).to(device)
     robot0_eef_pos = torch.tensor(state[28:31], dtype=torch.float32).to(device)[None]
-    #robot0_eef_quat = set_random_quaternion().to(device)[None] # FIXME
     robot0_eef_quat = torch.tensor(obs['quat_obs'], dtype=torch.float32).to(device)
     robot0_gripper_qpos = torch.tensor(robot_qpos_vec[-16:], dtype=torch.float32).to(device)[None]
 
     if obs_dict is None:  # First step
         obs_dict = {
-            'point_cloud': torch.cat([point_cloud] * horizon, dim=0)[None],
-            'imagin_robot': torch.cat([imagin_robot] * horizon, dim=0)[None],
-            'goal_gripper_pcd': torch.cat([goal_gripper_pcd] * horizon, dim=0)[None],
-            'robot0_eef_pos': torch.cat([robot0_eef_pos] * horizon, dim=0)[None],
-            'robot0_eef_quat': torch.cat([robot0_eef_quat] * horizon, dim=0)[None],
-            'robot0_gripper_qpos': torch.cat([robot0_gripper_qpos] * horizon, dim=0)[None],
+            'point_cloud': torch.cat([point_cloud] * n_obs_steps, dim=0)[None],
+            'imagin_robot': torch.cat([imagin_robot] * n_obs_steps, dim=0)[None],
+            'goal_gripper_pcd': torch.cat([goal_gripper_pcd] * n_obs_steps, dim=0)[None],
+            'robot0_eef_pos': torch.cat([robot0_eef_pos] * n_obs_steps, dim=0)[None],
+            'robot0_eef_quat': torch.cat([robot0_eef_quat] * n_obs_steps, dim=0)[None],
+            'robot0_gripper_qpos': torch.cat([robot0_gripper_qpos] * n_obs_steps, dim=0)[None],
         }
     else:  # Succeeding steps
         new_values = {
@@ -81,7 +80,7 @@ def get_dp3_obs(obs_dict, obs, device, horizon):
 
 
 
-def prepare_dp3(device, checkpoint_path, horizon, pointcloud_encoder_cfg):
+def prepare_dp3(device, checkpoint_path, n_obs_steps, pointcloud_encoder_cfg):
     # Recreate DP3 configuration (based on train_dp3.py)
     shape_meta = {
         'obs': {
@@ -94,9 +93,9 @@ def prepare_dp3(device, checkpoint_path, horizon, pointcloud_encoder_cfg):
         },
         'action': {'shape': (22,)}
     }
-    noise_scheduler = DDPMScheduler(num_train_timesteps=1000)
+    noise_scheduler = DDIMScheduler(num_train_timesteps=100)
     n_action_steps = 8
-    n_obs_steps = 2
+    horizon = 16
 
     policy = DP3(
         shape_meta=shape_meta,
@@ -150,12 +149,12 @@ def main(cfg):
     env.seed(eval_cfg.seed)
 
     if eval_cfg.model == "ppo":
-        policy = PPO.load(checkpoint_path, env, device,
+        policy = PPO.load(f"{utils.get_original_cwd()}/{checkpoint_path}", env, device,
                             policy_kwargs=get_3d_policy_kwargs(extractor_name='smallpn'),
                             check_obs_space=False, force_load=True)
         policy.set_random_seed(eval_cfg.seed)
     elif eval_cfg.model == "dp3":
-        policy = prepare_dp3(device, checkpoint_path, HORIZON, cfg.policy.pointcloud_encoder_cfg)
+        policy = prepare_dp3(device, checkpoint_path, N_OBS_STEPS, cfg.policy.pointcloud_encoder_cfg)
     else:
         raise NotImplementedError
 
@@ -183,6 +182,7 @@ def main(cfg):
                 reward_sum = 0
                 demo_data = []
                 obs_dict = None # Initialize at None
+                action_queue = deque([])
 
                 for j in range(env.horizon):         # Loop for max steps
                     if isinstance(obs, dict):
@@ -197,10 +197,15 @@ def main(cfg):
                     if eval_cfg.model == "ppo":
                         action = policy.predict(observation=obs, deterministic=True)[0]
                     elif eval_cfg.model == "dp3":
-                        obs_dict = get_dp3_obs(obs_dict, obs, device, HORIZON)
-                        with torch.no_grad():
-                            result = policy.predict_action(obs_dict)
-                            action = result['action'].squeeze()[0].cpu().numpy()
+                        obs_dict = get_dp3_obs(obs_dict, obs, device, N_OBS_STEPS)
+
+                        # Receding horizon control
+                        if len(action_queue) == 0:
+                            with torch.no_grad():
+                                result = policy.predict_action(obs_dict)
+                                actions = result['action'].squeeze()
+                                action_queue.extend(actions.tolist())
+                        action = np.array(action_queue.popleft()).astype(np.float32)
                     else:
                         raise NotImplementedError
 
