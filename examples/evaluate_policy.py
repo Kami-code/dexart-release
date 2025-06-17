@@ -24,7 +24,8 @@ def get_obs(obs):
         "observed_pc_seg-gt": obs['instance_1-seg_gt'],         # (512, 4)
         'imagined_robot_point_cloud': obs['imagination_robot'][:, :3],  # (96, 3)
         'imagined_robot_pc_seg-gt': obs['imagination_robot'][:, 3:],    # (96, 4)
-        'stage': obs['stage']
+        'stage': obs['stage'],
+        'progress': obs['progress']
     }
     return dp3_obs
 
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     task_name = args.task_name
     use_test_set = args.use_test_set
     checkpoint_path = args.checkpoint_path
-    np.random.seed(args.seed)
+    np.random.seed(args.seed)       # fix seeds here
     
 
     if use_test_set:
@@ -57,13 +58,13 @@ if __name__ == "__main__":
                      use_visual_obs=True,
                      use_gui=True,
                      is_eval=True,
-                     pc_noise=True,
+                     pc_noise=True,         # turn off noise
                      pc_seg=True,
                      index=indeces,
                      img_type='robot',
-                     rand_pos=rand_pos,
-                     rand_degree=rand_degree)
-    env.seed(args.seed)
+                     rand_pos=rand_pos,         # rand_pos = 0.0 -> no position randomization
+                     rand_degree=rand_degree)   # rand_degree = 0.0 -> no rotation randomization
+    env.seed(args.seed)         # fix seeds globally
 
     policy = PPO.load(checkpoint_path, env, 'cuda:0',
                       policy_kwargs=get_3d_policy_kwargs(extractor_name='smallpn'),
