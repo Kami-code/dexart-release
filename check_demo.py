@@ -29,7 +29,7 @@ def print_detailed_structure(data, indent=0):
         print(f"{prefix}{type(data)}: {repr(data)[:50]}")
 
 # Replace this with your pickle file path
-pickle_file = 'demo_DexArt_w.seg&q/laptop/demo_0.pkl'
+pickle_file = '/data/xinyu/demo_dexart_Jun18/laptop/demo_0.pkl'
 
 with open(pickle_file, 'rb') as f:
     data = pickle.load(f)

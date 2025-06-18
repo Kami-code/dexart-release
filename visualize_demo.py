@@ -1,13 +1,10 @@
-
-
-
 import open3d as o3d
 import numpy as np
 import pickle
 import time
 import os
 
-with open("data/outputs/2025.06.13/16.48.17_train_dp3_stack_d1/demo_dp3/laptop/success_demo/demo_2.pkl", "rb") as f:
+with open("/data/xinyu/demo_dexart_Jun18/laptop/demo_0.pkl", "rb") as f:
     demo_data = pickle.load(f)
 
 output_dir = "frames"
@@ -19,14 +16,27 @@ vis.create_window(window_name='Demo Playback', width=1920, height=1080)
 coord = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.05)
 vis.add_geometry(coord)
 
+# Define a color map for 4 segmentation classes
+seg_colors = np.array([
+    [0.0, 1.0, 0.0],  # green
+    [0.0, 0.0, 1.0],  # blue
+    [1.0, 0.0, 0.0],  # red
+    [1.0, 1.0, 0.0],  # yellow
+])
+
+
 # Initialize with first frame
 obs_pc = o3d.geometry.PointCloud()
-obs_pc.points = o3d.utility.Vector3dVector(demo_data[0]['obs']['observed_point_cloud'])
-obs_pc.paint_uniform_color([0, 0.6, 1])
+first_obs = demo_data[0]['obs']
+obs_pc.points = o3d.utility.Vector3dVector(first_obs['observed_point_cloud'])
+
+seg_labels = np.argmax(first_obs['observed_pc_seg-gt'], axis=1)
+colors = seg_colors[seg_labels]
+obs_pc.colors = o3d.utility.Vector3dVector(colors)
 vis.add_geometry(obs_pc)
 
 imagine_pc = o3d.geometry.PointCloud()
-imagine_pc.points = o3d.utility.Vector3dVector(demo_data[0]['obs']['imagined_robot_point_cloud'])
+imagine_pc.points = o3d.utility.Vector3dVector(first_obs['imagined_robot_point_cloud'])
 imagine_pc.paint_uniform_color([1.0, 0.6, 0])
 vis.add_geometry(imagine_pc)
 
@@ -61,19 +71,25 @@ vis.capture_screen_image(first_frame_path)
 
 for i, observed in enumerate(demo_data[1:], start=1):
     obs = observed['obs']
-    obs_pc.points = o3d.utility.Vector3dVector(obs['observed_point_cloud'])
-    imagine_pc.points = o3d.utility.Vector3dVector(obs['imagined_robot_point_cloud'])
     
+    obs_pc.points = o3d.utility.Vector3dVector(obs['observed_point_cloud'])
+    
+    seg_labels = np.argmax(obs['observed_pc_seg-gt'], axis=1)
+    colors = seg_colors[seg_labels]
+    obs_pc.colors = o3d.utility.Vector3dVector(colors)
+
+    imagine_pc.points = o3d.utility.Vector3dVector(obs['imagined_robot_point_cloud'])
+
     vis.update_geometry(obs_pc)
     vis.update_geometry(imagine_pc)
-    
+
     vis.poll_events()
     vis.update_renderer()
 
     image_path = os.path.join(output_dir, f"frame_{i:04d}.png")
     vis.capture_screen_image(image_path)
 
-    time.sleep(0.13)  # playback speed
+    time.sleep(0.13)
 
 print("Playback finished. Close window to exit.")
 vis.run()

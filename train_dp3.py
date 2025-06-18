@@ -20,10 +20,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class DP3DexArtDataset(Dataset):
-    def __init__(self, data_dir, horizon= 16, n_obs_steps = 2):
+    def __init__(self, data_dir, horizon= 16, n_obs_steps = 2, goal_mode="None"):
         self.samples = []
         self.horizon = horizon
         self.n_obs_steps = n_obs_steps
+        self.goal_mode = goal_mode
 
         for fname in os.listdir(data_dir):
             if fname.endswith(".pkl"):
@@ -37,55 +38,16 @@ class DP3DexArtDataset(Dataset):
     def __len__(self):
         return len(self.samples)
 
-    @staticmethod
-    def visualize_pc(demo1, demo2):
-        vis = o3d.visualization.Visualizer()
-        vis.create_window()
-
-        obs_pc = o3d.geometry.PointCloud()
-        obs_pc.points = o3d.utility.Vector3dVector(demo2[3])
-        obs_pc.paint_uniform_color([0, 0.6, 1])
-        vis.add_geometry(obs_pc)
-
-        imagine_pc = o3d.geometry.PointCloud()
-        imagine_pc.points = o3d.utility.Vector3dVector(demo1[3])
-        imagine_pc.paint_uniform_color([1.0, 0.6, 0])
-        vis.add_geometry(imagine_pc)
-
-        all_points = np.vstack([np.asarray(obs_pc.points), np.asarray(imagine_pc.points)])
-        center = all_points.mean(axis=0)
-
-        front = np.array([0.0, 1.0, 0.0])
-        up = np.array([0.0, 0.0, 1.0])
-        right = np.cross(front, up)
-
-        offset_distance = 0.15  
-        shifted_lookat = center + offset_distance * right
-
-        view_ctl = vis.get_view_control()
-        view_ctl.set_lookat(shifted_lookat.tolist())
-        view_ctl.set_front(front.tolist())
-        view_ctl.set_up(up.tolist())
-        view_ctl.set_zoom(0.8)
-
-        vis.poll_events()
-        vis.update_renderer()
-        
-        first_frame_path = os.path.join("/home/xinyu/dexart-release/visualization", "stage_3.png")
-        vis.capture_screen_image(first_frame_path)
-
     def getGoal(self, traj, start_idx):
-        all_stages = np.array([i['obs']['stage'] for i in traj])
-        curr_stage = all_stages[start_idx]
-
-        # Find first occurrence of next stage
         try:
-            next_stage_idx = np.where(all_stages == (curr_stage + 1))[0][0]
+            progress_array = np.array([i['obs']['progress'] for i in traj])
+            subgoal_idx = np.where(progress_array > 1e-5)[0][0]
         except:
-            # Might fail to find next stage idx if:
-            # - Already at last stage
-            # - Skipped one intermediate state
-            # In that case, just take the last idx
+            subgoal_idx = -1
+
+        if start_idx < subgoal_idx:
+            next_stage_idx = subgoal_idx
+        else:
             next_stage_idx = -1
 
         goal_obs_imagin = traj[next_stage_idx]["obs"]["imagined_robot_point_cloud"]
@@ -99,21 +61,29 @@ class DP3DexArtDataset(Dataset):
         obs_window = traj[start_idx - self.n_obs_steps : start_idx]
         action_window = traj[start_idx : start_idx + self.horizon]
 
-        goal_obs_imagin, goal_obs_env = self.getGoal(traj, start_idx)
-
-        obs = {
-            'point_cloud': torch.stack([torch.tensor(o["obs"]["observed_point_cloud"], dtype=torch.float32) for o in obs_window]),
-            'imagin_robot': torch.stack([torch.tensor(o["obs"]['imagined_robot_point_cloud'], dtype=torch.float32) for o in obs_window]),
-            'goal_gripper_pcd': torch.stack([torch.tensor(goal_obs_imagin, dtype=torch.float32)] * self.n_obs_steps),
-            'robot0_eef_pos': torch.stack([torch.tensor(o["obs"]['palm_pose.p'], dtype=torch.float32) for o in obs_window]),
-            'robot0_eef_quat': torch.stack([torch.tensor(o["obs"]['palm_pose.q'], dtype=torch.float32) for o in obs_window]),
-            'robot0_gripper_qpos': torch.stack([torch.tensor(o["obs"]['robot_qpos_vec'][-16:], dtype=torch.float32) for o in obs_window]),
-        }
+        if self.goal_mode == 'pointcloud_oracle':
+            goal_obs_imagin, goal_obs_env = self.getGoal(traj, start_idx)
+            obs = {
+                'point_cloud': torch.stack([torch.tensor(o["obs"]["observed_point_cloud"], dtype=torch.float32) for o in obs_window]),
+                'imagin_robot': torch.stack([torch.tensor(o["obs"]['imagined_robot_point_cloud'], dtype=torch.float32) for o in obs_window]),
+                'goal_gripper_pcd': torch.stack([torch.tensor(goal_obs_imagin, dtype=torch.float32)] * self.n_obs_steps),
+                'robot0_eef_pos': torch.stack([torch.tensor(o["obs"]['palm_pose.p'], dtype=torch.float32) for o in obs_window]),
+                'robot0_eef_quat': torch.stack([torch.tensor(o["obs"]['palm_pose.q'], dtype=torch.float32) for o in obs_window]),
+                'robot0_gripper_qpos': torch.stack([torch.tensor(o["obs"]['robot_qpos_vec'][-16:], dtype=torch.float32) for o in obs_window]),
+            }
+            #print("pointc")
+        elif self.goal_mode == 'None':
+            obs = {
+                'point_cloud': torch.stack([torch.tensor(o["obs"]["observed_point_cloud"], dtype=torch.float32) for o in obs_window]),
+                'imagin_robot': torch.stack([torch.tensor(o["obs"]['imagined_robot_point_cloud'], dtype=torch.float32) for o in obs_window]),
+                'goal_gripper_pcd': torch.stack([torch.tensor(o["obs"]['imagined_robot_point_cloud'], dtype=torch.float32) for o in obs_window]),
+                'robot0_eef_pos': torch.stack([torch.tensor(o["obs"]['palm_pose.p'], dtype=torch.float32) for o in obs_window]),
+                'robot0_eef_quat': torch.stack([torch.tensor(o["obs"]['palm_pose.q'], dtype=torch.float32) for o in obs_window]),
+                'robot0_gripper_qpos': torch.stack([torch.tensor(o["obs"]['robot_qpos_vec'][-16:], dtype=torch.float32) for o in obs_window]),
+            }
+            #print("null")
 
         action = torch.stack([torch.tensor(o["action"], dtype=torch.float32) for o in action_window])
-        
-        #self.visualize_pc(last_obs_per_stage, last_obs_env)
-        #input("Paused. Press Enter to continue...")
 
         return {
             'obs': obs,
@@ -158,12 +128,12 @@ def main(cfg):
 
     data_dir = "/data/xinyu/demo_dexart_Jun13/laptop"
     batch_size = 128
-    num_epochs = 50
+    num_epochs = 500
 
     lr = 1e-4
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    dataset = DP3DexArtDataset(data_dir)
+    dataset = DP3DexArtDataset(data_dir, goal_mode=cfg.policy.goal_mode)
     
     total_size = len(dataset)
     train_size = int(0.8 * total_size)
@@ -212,13 +182,16 @@ def main(cfg):
         n_obs_steps=n_obs_steps,
         pointcloud_encoder_cfg=pointcloud_encoder_cfg,
         pointnet_type="act3d",
-        goal_mode='pointcloud_oracle',
+        goal_mode=cfg.policy.goal_mode,
     ).to(device)
 
 
     normalizer = build_normalizer(dataset)
     model.set_normalizer(normalizer)
     optimizer = optim.Adam(model.parameters(), lr=lr)
+
+    with open("loss_log.txt", "w") as f:
+        f.write("Epoch,TrainLoss,ValLoss\n")
 
     avg_train_losses = []
     avg_val_losses = []
@@ -277,7 +250,12 @@ def main(cfg):
         avg_val_loss = total_val_loss / val_count
         avg_val_losses.append(avg_val_loss)
 
-        print(f"Epoch {epoch+1}/{num_epochs} - Train Loss: {avg_train_loss:.4f} - Val Loss: {avg_val_loss:.4f}")
+        if epoch % 10 == 0:
+            print(f"Epoch {epoch+1}/{num_epochs} - Train Loss: {avg_train_loss:.4f} - Val Loss: {avg_val_loss:.4f}")
+        
+        with open("loss_log.txt", "a") as f:
+            f.write(f"{epoch+1},{avg_train_loss:.6f},{avg_val_loss:.6f}\n")
+
         torch.save(model.state_dict(), f"dp3_epoch_{epoch+1}.pt")
 
 
@@ -301,13 +279,12 @@ def main(cfg):
     print(f"Final Test Loss: {avg_test_loss:.4f}")
 
 
-    '''
-    if avg_losses:
+    if avg_train_losses:
         try:
             plt.figure()
-            plt.plot(range(1, len(avg_losses) + 1), avg_losses, marker='o')
+            plt.plot(range(1, len(avg_train_losses) + 1), avg_train_losses, marker='o')
             plt.xlabel('Epoch')
-            plt.ylabel('Average Training Loss')
+            plt.ylabel('Training Loss')
             plt.title('Training Loss vs. Epochs')
             plt.grid(True)
             plt.show()
@@ -317,8 +294,7 @@ def main(cfg):
         except Exception as e:
             print("Failed to plot:", e)
     else:
-        print("avg_losses is empty — skipping plot.")
-    '''
+        print("avg_train_losses is empty — skipping plot.")
 
 if __name__ == "__main__":
     main()
