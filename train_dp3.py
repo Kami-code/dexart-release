@@ -122,11 +122,44 @@ def build_normalizer(dataset):
     return normalizer
 
 
+def __getitem__(self, idx):
+        traj, start_idx = self.samples[idx]
+        obs_window = traj[start_idx - self.n_obs_steps : start_idx]
+        action_window = traj[start_idx : start_idx + self.horizon]
+
+        if self.goal_mode == 'pointcloud_oracle':
+            goal_obs_imagin, goal_obs_env = self.getGoal(traj, start_idx)
+            obs = {
+                'point_cloud': torch.stack([torch.tensor(o["obs"]["observed_point_cloud"], dtype=torch.float32) for o in obs_window]),
+                'imagin_robot': torch.stack([torch.tensor(o["obs"]['imagined_robot_point_cloud'], dtype=torch.float32) for o in obs_window]),
+                'goal_gripper_pcd': torch.stack([torch.tensor(goal_obs_imagin, dtype=torch.float32)] * self.n_obs_steps),
+                'robot0_eef_pos': torch.stack([torch.tensor(o["obs"]['palm_pose.p'], dtype=torch.float32) for o in obs_window]),
+                'robot0_eef_quat': torch.stack([torch.tensor(o["obs"]['palm_pose.q'], dtype=torch.float32) for o in obs_window]),
+                'robot0_gripper_qpos': torch.stack([torch.tensor(o["obs"]['robot_qpos_vec'][-16:], dtype=torch.float32) for o in obs_window]),
+            }
+            #print("pointc")
+        elif self.goal_mode == 'None':
+            obs = {
+                'point_cloud': torch.stack([torch.tensor(o["obs"]["observed_point_cloud"], dtype=torch.float32) for o in obs_window]),
+                'imagin_robot': torch.stack([torch.tensor(o["obs"]['imagined_robot_point_cloud'], dtype=torch.float32) for o in obs_window]),
+                'goal_gripper_pcd': torch.stack([torch.tensor(o["obs"]['imagined_robot_point_cloud'], dtype=torch.float32) for o in obs_window]),
+                'robot0_eef_pos': torch.stack([torch.tensor(o["obs"]['palm_pose.p'], dtype=torch.float32) for o in obs_window]),
+                'robot0_eef_quat': torch.stack([torch.tensor(o["obs"]['palm_pose.q'], dtype=torch.float32) for o in obs_window]),
+                'robot0_gripper_qpos': torch.stack([torch.tensor(o["obs"]['robot_qpos_vec'][-16:], dtype=torch.float32) for o in obs_window]),
+            }
+            #print("null")
+
+        action = torch.stack([torch.tensor(o["action"], dtype=torch.float32) for o in action_window])
+
+        return {
+            'obs': obs,
+            'action': action
+        }
 
 @hydra.main(version_base="1.1", config_path="tax3d-conditioned-mimicgen/equi_diffpo/config", config_name="dp3")
 def main(cfg):
-
-    data_dir = "/data/xinyu/demo_dexart_Jun13/laptop"
+    
+    data_dir = "/data/xinyu/demo_dexart_Jun18/laptop"
     batch_size = 128
     num_epochs = 500
 

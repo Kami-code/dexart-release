@@ -93,7 +93,8 @@ def prepare_dp3(device, checkpoint_path, n_obs_steps, pointcloud_encoder_cfg):
         },
         'action': {'shape': (22,)}
     }
-    noise_scheduler = DDIMScheduler(num_train_timesteps=100)
+    #noise_scheduler = DDIMScheduler(num_train_timesteps=100)
+    noise_scheduler = DDPMScheduler(num_train_timesteps=1000)
     n_action_steps = 8
     horizon = 16
 

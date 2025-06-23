@@ -1,0 +1,168 @@
+defaults:
+  - _self_
+
+name: train_dp3
+_target_: equi_diffpo.workspace.train_dp3_workspace_NEW.TrainDP3WorkspaceNEW
+
+shape_meta: 
+  obs:
+    point_cloud: 
+      shape: [512, 3]
+    imagin_robot: 
+      shape: [96, 3]
+    robot0_eef_pos: 
+      shape: [3]
+    robot0_eef_quat: 
+      shape: [4]
+    robot0_gripper_qpos: 
+      shape: [16]
+    goal_gripper_pcd: 
+      shape: [96, 3]
+  action: 
+    shape: [22]
+exp_name: "debug"
+
+task_name: laptop
+n_demo: 200
+horizon: 16
+n_obs_steps: 2
+n_action_steps: 8
+n_latency_steps: 0
+dataset_obs_steps: ${n_obs_steps}
+keypoint_visible_rate: 1.0
+obs_as_global_cond: True
+data_dir: "/data/xinyu/demo_dexart_Jun13/laptop"
+load_ckpt_path: null
+
+policy:
+  _target_: equi_diffpo.policy.dp3.DP3
+  use_point_crop: true
+  condition_type: film
+  use_down_condition: true
+  use_mid_condition: true
+  use_up_condition: true
+  goal_mode: None
+  
+  diffusion_step_embed_dim: 128
+  down_dims:
+  - 512
+  - 1024
+  - 2048
+  crop_shape:
+  - 80
+  - 80
+  encoder_output_dim: 64
+  horizon: ${horizon}
+  kernel_size: 5
+  n_action_steps: ${n_action_steps}
+  n_groups: 8
+  n_obs_steps: ${n_obs_steps}
+
+  noise_scheduler:
+    _target_: diffusers.DDPMScheduler
+    num_train_timesteps: 1000
+    beta_start: 0.0001
+    beta_end: 0.02
+    beta_schedule: squaredcos_cap_v2
+    clip_sample: True
+    steps_offset: 0
+    prediction_type: sample
+
+
+  num_inference_steps: 10
+  obs_as_global_cond: true
+  shape_meta: ${shape_meta}
+
+  use_pc_color: true
+  pointnet_type: "act3d"
+
+
+  pointcloud_encoder_cfg:
+    in_channels: 3
+    out_channels: ${policy.encoder_output_dim}
+    use_layernorm: true
+    final_norm: layernorm # layernorm, none
+    normal_channel: false
+
+
+ema:
+  _target_: equi_diffpo.model.diffusion.ema_model.EMAModel
+  update_after_step: 0
+  inv_gamma: 1.0
+  power: 0.75
+  min_value: 0.0
+  max_value: 0.9999
+
+dataloader:
+  batch_size: 128
+  num_workers: 8
+  shuffle: True
+  pin_memory: True
+  persistent_workers: True
+
+val_dataloader:
+  batch_size: 128
+  num_workers: 8
+  shuffle: False
+  pin_memory: True
+  persistent_workers: True
+
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 1.0e-4
+  betas: [0.95, 0.999]
+  eps: 1.0e-8
+  weight_decay: 1.0e-6
+
+training:
+  device: "cuda:0"
+  seed: 42
+  debug: False
+  resume: True
+  lr_scheduler: cosine
+  lr_warmup_steps: 500
+  num_epochs: ${eval:'int(200000 / ${n_demo})'}
+  gradient_accumulate_every: 1
+  use_ema: True
+  rollout_every: ${eval:'int(10000 / ${n_demo})'}
+  checkpoint_every: ${eval:'int(10000 / ${n_demo})'}
+  val_every: 1
+  sample_every: 5
+  max_train_steps: null
+  max_val_steps: null
+  tqdm_interval_sec: 1.0
+
+
+enable_wandb: False
+logging:
+  project: dp3_${task_name}
+  resume: true
+  mode: online
+  name: dp3_${n_demo}
+  tags: ["${name}", "${task_name}", "${exp_name}"]
+  id: null
+  group: null
+
+
+checkpoint:
+  save_ckpt: True # if True, save checkpoint every checkpoint_every
+  topk:
+    monitor_key: test_mean_score
+    mode: max
+    k: 1
+    format_str: 'epoch={epoch:04d}-test_mean_score={test_mean_score:.3f}.ckpt'
+  save_last_ckpt: True # this only saves when save_ckpt is True
+  save_last_snapshot: False
+
+multi_run:
+  run_dir: data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}
+  wandb_name_base: ${now:%Y.%m.%d-%H.%M.%S}_${name}_${task_name}
+
+hydra:
+  job:
+    override_dirname: ${name}
+  run:
+    dir: data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}
+  sweep:
+    dir: data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}
+    subdir: ${hydra.job.num}
