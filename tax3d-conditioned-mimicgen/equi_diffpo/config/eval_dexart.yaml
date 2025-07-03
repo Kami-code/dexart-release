@@ -1,5 +1,5 @@
 defaults:
-  - dp3 # This pulls in the entire DP3 config
+  - dp3_eval # This pulls in the entire DP3 config
 
 # DexArt  evaluation-specific fields here
 eval:

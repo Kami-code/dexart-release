@@ -121,7 +121,7 @@ training:
   resume: True
   lr_scheduler: cosine
   lr_warmup_steps: 500
-  num_epochs: ${eval:'int(200000 / ${n_demo})'}
+  num_epochs: 500        # ${eval:'int(200000 / ${n_demo})'}
   gradient_accumulate_every: 1
   use_ema: True
   rollout_every: ${eval:'int(10000 / ${n_demo})'}

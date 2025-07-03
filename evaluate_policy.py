@@ -166,10 +166,10 @@ def main(cfg):
     progress_list = list()
     stage_list = list()
 
-    demo_save_dir_success = os.path.join('demo_dp3', task_name, 'success_demo')
-    demo_save_dir_failure = os.path.join('demo_dp3', task_name, 'failure_demo')
-    os.makedirs(demo_save_dir_success, exist_ok=True)
-    os.makedirs(demo_save_dir_failure, exist_ok=True)
+    # demo_save_dir_success = os.path.join('demo_dp3', task_name, 'success_demo')
+    # demo_save_dir_failure = os.path.join('demo_dp3', task_name, 'failure_demo')
+    # os.makedirs(demo_save_dir_success, exist_ok=True)
+    # os.makedirs(demo_save_dir_failure, exist_ok=True)
 
     demo_id = 0
 
@@ -260,13 +260,13 @@ def main(cfg):
                 stage_list.append(stage)
                 pbar.update(1)
 
-                if eval_success:
-                    #print(demo_data)         
-                    with open(os.path.join(demo_save_dir_success, f'demo_{demo_id}.pkl'), 'wb') as f:
-                        pickle.dump(demo_data, f)
-                else:
-                    with open(os.path.join(demo_save_dir_failure, f'demo_{demo_id}.pkl'), 'wb') as f:
-                        pickle.dump(demo_data, f)
+                # if eval_success:
+                #     #print(demo_data)         
+                #     with open(os.path.join(demo_save_dir_success, f'demo_{demo_id}.pkl'), 'wb') as f:
+                #         pickle.dump(demo_data, f)
+                # else:
+                #     with open(os.path.join(demo_save_dir_failure, f'demo_{demo_id}.pkl'), 'wb') as f:
+                #         pickle.dump(demo_data, f)
                 
                 demo_id += 1
 
@@ -274,7 +274,7 @@ def main(cfg):
     print(progress_list)
     print(stage_list)
     print(f"checkpoint in {checkpoint_path} success rate = {np.mean(success_list)}")
-    print(f"Saved {demo_id} demos to: {demo_save_dir_success} and {demo_save_dir_failure}")
+    # print(f"Saved {demo_id} demos to: {demo_save_dir_success} and {demo_save_dir_failure}")
 
 if __name__ == "__main__":
     main()

@@ -31,7 +31,7 @@ n_latency_steps: 0
 dataset_obs_steps: ${n_obs_steps}
 keypoint_visible_rate: 1.0
 obs_as_global_cond: True
-data_dir: "/data/xinyu/demo_dexart_Jun13/laptop"
+data_dir: "/data/xinyu/demo_dexart_Jun18/laptop"
 load_ckpt_path: null
 
 policy:
@@ -127,7 +127,7 @@ training:
   use_ema: True
   rollout_every: ${eval:'int(10000 / ${n_demo})'}
   checkpoint_every: ${eval:'int(10000 / ${n_demo})'}
-  val_every: 1
+  val_every: 20
   sample_every: 5
   max_train_steps: null
   max_val_steps: null

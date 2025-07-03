@@ -119,7 +119,7 @@ class TrainDP3WorkspaceNEW:
             RUN_CKPT = True
             verbose = False
         
-        RUN_VALIDATION = False # reduce time cost
+        RUN_VALIDATION = True # reduce time cost
         
         # resume training
         if cfg.training.resume:
@@ -317,34 +317,16 @@ class TrainDP3WorkspaceNEW:
                 # log all
                 step_log.update(runner_log)
 
-            
-                
-            # run validationshape_meta = {
-    #     'obs': {
-    #         'point_cloud': {'shape': (512, 3)},
-    #         'imagin_robot': {'shape': (96, 3)},
-    #         'goal_gripper_pcd': {'shape': (96, 3)},
-    #         'robot0_eef_pos': {'shape': (3,)},
-    #         'robot0_eef_quat': {'shape': (4,)},
-    #         'robot0_gripper_qpos': {'shape': (16,)}
-    #     },
-    #     'action': {'shape': (22,)}
-    # }
-    # #noise_scheduler = DDIMScheduler(num_train_timesteps=100)
-    # noise_scheduler = DDPMScheduler(num_train_timesteps=1000)
-    # n_action_steps = 8
-    # horizon = 16
 
-    # policy = DP3(
-    #     shape_meta=shape_meta,
-    #     noise_scheduler=noise_scheduler,
-    #     horizon=horizon,
-    #     n_action_steps=n_action_steps,
-    #     n_obs_steps=n_obs_steps,
-    #     pointcloud_encoder_cfg=pointcloud_encoder_cfg,
-    #     pointnet_type="act3d",
-    #     goal_mode='None',
-    # ).to(device)ict, info = self.model.compute_loss(batch)
+            # run validation
+            if (self.epoch % cfg.training.val_every) == 0 and RUN_VALIDATION:
+                with torch.no_grad():
+                    val_losses = list()
+                    with tqdm.tqdm(val_dataloader, desc=f"Validation epoch {self.epoch}", 
+                            leave=False, mininterval=cfg.training.tqdm_interval_sec) as tepoch:
+                        for batch_idx, batch in enumerate(tepoch):
+                            batch = dict_apply(batch, lambda x: x.to(device, non_blocking=True))
+                            loss, loss_dict, info = self.model.compute_loss(batch)
                             val_losses.append(loss)
                             if (cfg.training.max_val_steps is not None) \
                                 and batch_idx >= (cfg.training.max_val_steps-1):
@@ -353,6 +335,7 @@ class TrainDP3WorkspaceNEW:
                         val_loss = torch.mean(torch.tensor(val_losses)).item()
                         # log epoch average validation loss
                         step_log['val_loss'] = val_loss
+                        print(val_loss)
 
             # run diffusion sampling on a training batch
             if (self.epoch % cfg.training.sample_every) == 0:
@@ -384,6 +367,10 @@ class TrainDP3WorkspaceNEW:
                 step_log['test_mean_score'] = - train_loss
                 
             # checkpoint
+
+            if (self.epoch % 40) == 0:
+                self.save_checkpoint(path=f"checkpoints/epoch_{self.epoch:05d}.ckpt")
+
             if (self.epoch % cfg.training.checkpoint_every) == 0 and cfg.checkpoint.save_ckpt:
                 # checkpointing
                 if cfg.checkpoint.save_last_ckpt:

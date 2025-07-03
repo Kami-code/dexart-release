@@ -5,6 +5,8 @@ python train.py --config-name=train_diffusion_lowdim_workspace
 """
 
 # python tax3d-conditioned-mimicgen/train_NEW.py --config-name=dp3_NEW task_name=laptop n_demo=1000 policy.pointnet_type=act3d  policy.goal_mode=None training.seed=1
+# export PYTHONPATH=/home/xinyul5/tax3d-conditioned-mimicgen:$PYTHONPATH
+
 
 import sys
 # use line-buffering for both stdout and stderr
