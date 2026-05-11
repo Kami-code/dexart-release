@@ -33,7 +33,7 @@ conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 -c pytorch 
 ```
 
 2. Download the assets from
-the [Google Drive](https://drive.google.com/file/d/1qc-v50eTEjpkRoWsxfqExvC1P_EKSFAa/view?usp=drive_link) and place 
+the [Google Drive](https://drive.usercontent.google.com/download?id=1DxRfB4087PeM3Aejd6cR-RQVgOKdNrL4&export=download&authuser=0) and place 
 the `asset` directory at the project root directory.
 
 ## File Structure
